@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Show Count</title>
+<style type ="text/css">
+	.title{color: blue; text-align:center;}
+	#resultView{ }
+	/* h2{} */
+</style>
+
+<!--  javascript 를 쓸 곳을 따로 구현해줘야 -->
+<script type="text/javascript">
+	var xhr;  // 비동기에서 xhr이 모든걸 다 한다 (전역변수로 선언_ script tag 안 전체에서 사용하기 위해서)
+	
+	// 요청에 관련된 처리를 하는 함수
+	function startRequest(){ 
+		//1. xhr 객체생성 xhr을 전역변수로 선언하고 들어가야
+		//2. 응답이 들어올 때 적용할 함수를 지정한다 
+		//3. 서버상에서 요청을 처리할 페이지를 지정한다     xhr.open("post or get", "page 명", true)
+		//4. send() 를 해야 이때 서버에 전달된다 
+		
+		// 버튼 눌렀을 때 어떤 요청이 진행되는지를 기술 ... 
+		xhr = new XMLHttpRequest();    // 비동기 기술의 모든것은 XMLHttpRequest 객체를 사용해야 한다. javascript가 제공하는 내장 객체  이것의 필드와 메서드를 사용하는 것 
+		alert(xhr.readyState);   // 여기까지 잘 돌아가는지 확인. java 에서 sysout 하는것과 동일. 서버로 건너기 전에는  0 
+		
+		xhr.onreadystatechange = callback;   // DispatcherServlet 에서 나온 응답이 startRequest()로 들어오는게 아니라 적용할 함수 callback를 지정한다 . callback은 함수명 내가 지정함
+		xhr.open("get", "DispatcherServlet", true);   // 서버상에서 요청을 처리할 페이지를 지정한다   비동기면 true 동기면 false
+		//동기와 같이 버튼이 눌려서 바로 Servlet 으로 안가고 javascript로 이벤트 처리가 됐을 때 startRequest()가 실행되고 이 안의 
+		alert(xhr.readyState);   //  1 나온다    2,3 은 서버로 건너가는 중의 상태 값이다 
+		xhr.send(null); // 이때 비로소 객체가 서버로 날라간다 = DspatcherServlet 으로 날라간다는 것   여기까지가 요청하는 것까지임
+		
+	}
+	
+	// 응답에 관련된 처리를 하는 함수
+	function callback(){   // 여기 callback에서 응답을 받음 
+		// 비동기는 응답페이지 즉 결과 페이지가 따로 없다. 이 html의 응답의 대한 처리를 하는 지점으로 바로 돌아간다 
+		// alert("callback...");   
+	if(xhr.readyState == 4){    // readyState 가 0~1 이면 브라우저에 머물러 있다.객체의 responseText 를 꺼내 보려면 가고 와서 다시 브라우저에 안착했을 때 값을 꺼내야하는데 그때가 readyState가 4 
+		if(xhr.status == 200){  // 화면상 성공적으로 잘 도착하고 성공할 때 200 값을 갖고있음
+			var text = xhr.responseText; 
+			document.getElementById("resultView").innerHTML = text;    // span 즉 이 영역으로 보내서 innerHTML은 뿌려달라는 것 
+		}
+	}
+	}
+</script>
+
+</head>
+<body>
+	<h2 class = "title">Show Count</h2>
+	<!-- 버튼 클릭하면 함수가 호출 되도록 속성을 연결한다 = event 처리 . 이때 onclick = "함수명()" 이렇게  javascript 함수로 연결해서 event 처리한다  -->
+	<!--  비동기는 무조건 이벤트 함수로 javascript와 연결해서 실행 이때 onclick 으로 연결. 버튼을 누르면 비동기로 연결 -->
+	<input type ="button" value="카운트 증가하기" onclick = "startRequest()">
+	<hr>   <!-- horizontal 이라고 수평선으로 구분 해주는 선 -->
+	<!-- <span><div> 영역을 지정할 때  사용 -->
+	<span id ="resultView"></span>
+	<div></div>
+</body>
+</html>

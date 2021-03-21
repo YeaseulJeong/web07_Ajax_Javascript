@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Register Form</title>
+
+<script type="text/javascript">
+ var xhr;
+ var uid;     // form에 입력된  값을 javascript에서 받아오는 방법
+ var upass;
+ 
+ function startRequest(){  // onclick 을 누르면 여기로 온다 
+	// javascript 를 거치고 Servlet에 가기 때문에 javascript에서 같이 보내주는 것 
+	
+	// form에 입력된  값을 javascript에서 받아오는 방법: form 을 거치면서 접근 / 이동한다 
+	// document.frm.id  여기까지는 form 을 받아온 것 (form 의 이름일 뿐) 그 안의 실제 값을 javascript로 받지 않음   .value까지 해야 
+	 uid = document.frm.id.value;
+	 upass = document.frm.pass.value;     // 값을 Servlet으로 넘겨야 하니까 받아오는 것
+ 	 // alert("id: "+ uid+ " pass: "+upass);  // 잘 만들었는지 확인 하는 코드
+
+	 
+	 // 1. xhr 객체 생성
+	 xhr = new XMLHttpRequest(); 
+ 	 //alert(xhr.readyState);  // 잘 만들었는지 확인 하는 코드
+	 // 2. callback 함수 등록
+	 // 여기서 바로 함수라고 callback() 으로 해버리면 DispatcherServlet 에 갔다 와서 out.print 를 탁구공 생성 하자마자 보여달라고 하니까 에러가 난다
+	 xhr.onreadystatechange = callback; 
+	 // 3. 요청을 받을 서블릿 등록 DispatcherServlet 아까꺼 주석 처리하고 작성 
+	 xhr.open("get", "DispatcherServlet?id="+uid+"&pass="+upass, true);   //회원을 DB에서 찾아오려면 값들을 넘겨야 한다 get 방식에서 path로 parameter들을 넘길 때 ? 를 사용한다 
+	 // 4. xhr 서버로 날린다   get method 일 때는  null 이다
+	 xhr.send(null); 
+ }
+ 
+ function callback(){ // out.print 에서 날라오면 응답은 여기서 작성
+	//1. xhr 이 다시 화면단으로 도착하고 서버 가동결과가 성공일 때만 응답을 받는다
+	//2. 응답받은 결과를 div 영역에 뿌린다 ( 출력한다)
+ 	//id 는 111, pass 는 222 입니다를 출력한다
+ 	
+	 if(xhr.readyState == 4){    // readyState 가 0~1 이면 브라우저에 머물러 있다.객체의 responseText 를 꺼내 보려면 가고 와서 다시 브라우저에 안착했을 때 값을 꺼내야하는데 그때가 readyState가 4 
+			if(xhr.status == 200){  // 화면상 성공적으로 잘 도착하고 성공할 때 200 값을 갖고있음
+				var text = xhr.responseText; 
+				// document.getElementById("resultView").innerHTML = text;    // div 즉 이 영역 (resultView)으로 보내서 여기서 innerHTML은 뿌려달라는 것 
+				document.getElementById("resultView").innerHTML = 
+					"<font color = green size=5>"+xhr.responseText+"</font>";
+					
+				// div영역에 뿌려짐과 동시에 폼에서 값을 받는 부분들을 다시 초기화 시킨다 
+				document.frm.id.value="";
+				document.frm.pass.value="";
+			}
+		}
+ 
+ }
+</script>
+
+</head>
+<body>
+<h2>Register Form</h2>
+<form name ="frm">
+	Id <input type="text" name ="id"><br><br>
+	Pw <input type="password" name = "pass"><br><br>
+</form>
+	<!-- 버튼 클릭하면 자바 스크립트 함수 호출 되도록 onclick -->
+	<input type="button" value ="가입된 회원 정보 보기" onclick = "startRequest()"> 
+	<hr>
+	<div id="resultView"></div>
+</body>
+</html>
